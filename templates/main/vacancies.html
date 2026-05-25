@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Вакансии — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Вакансии</h1>
+<p class="lead">Присоединяйтесь к команде PizzaHouse!</p>
+
+{% if vacancies %}
+<div class="row">
+  {% for vacancy in vacancies %}
+  <div class="col-md-6 mb-4">
+    <div class="card h-100 border-left border-danger">
+      <div class="card-body">
+        <h5 class="card-title text-danger">{{ vacancy.title }}</h5>
+        {% if vacancy.salary %}
+        <p class="badge bg-success fs-6 mb-2">{{ vacancy.salary }}</p>
+        {% endif %}
+        <p class="card-text">{{ vacancy.description|linebreaks }}</p>
+        <small class="text-muted">Опубликовано: {{ vacancy.created_at|date:"d.m.Y" }}</small>
+      </div>
+      <div class="card-footer">
+        <a href="/contacts/" class="btn btn-outline-danger btn-sm">Откликнуться</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">Активных вакансий нет. Следите за обновлениями!</div>
+{% endif %}
+
+<div class="card mt-4 bg-light">
+  <div class="card-body">
+    <h5>Не нашли подходящую вакансию?</h5>
+    <p>Отправьте нам своё резюме, и мы свяжемся с вами при появлении подходящей позиции.</p>
+    <a href="mailto:hr@pizzahouse.by" class="btn btn-danger">Отправить резюме</a>
+  </div>
+</div>
+{% endblock %}

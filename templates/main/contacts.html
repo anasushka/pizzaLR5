@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Контакты — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Контакты</h1>
+<p class="lead">Свяжитесь с нашей командой</p>
+
+{% if staff %}
+<div class="row">
+  {% for person in staff %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      {% if person.photo %}
+      <img src="{{ person.photo.url }}" class="card-img-top" alt="{{ person.full_name }}" style="height:200px;object-fit:cover;">
+      {% else %}
+      <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height:200px;">
+        <span class="text-white display-4">👤</span>
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ person.full_name }}</h5>
+        <p class="text-danger fw-bold">{{ person.position }}</p>
+        {% if person.description %}<p class="card-text">{{ person.description }}</p>{% endif %}
+        {% if person.phone %}<p class="mb-1"><i>📞</i> <a href="tel:{{ person.phone }}">{{ person.phone }}</a></p>{% endif %}
+        {% if person.email %}<p class="mb-0"><i>✉️</i> <a href="mailto:{{ person.email }}">{{ person.email }}</a></p>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">Контакты сотрудников скоро появятся.</div>
+{% endif %}
+
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>Общие контакты</h5>
+        <p>📞 +375 (29) 123-45-67</p>
+        <p>✉️ info@pizzahouse.by</p>
+        <p>📍 г. Минск, ул. Пиццерная, 1</p>
+        <p>🕐 Пн–Вс: 10:00–22:00</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>Доставка</h5>
+        <p>Принимаем заказы каждый день</p>
+        <p>Минимальный заказ — 20 руб.</p>
+        <p>Доставка — 30–60 минут</p>
+        <a href="/shop/" class="btn btn-danger">Заказать пиццу</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

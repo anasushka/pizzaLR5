@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Оформление заказа — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Оформление заказа</h1>
+<div class="row">
+  <div class="col-md-7">
+    <form method="post">
+      {% csrf_token %}
+      <div class="card mb-3">
+        <div class="card-header">Способ получения</div>
+        <div class="card-body">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="delivery_type" id="delivery" value="delivery" checked>
+            <label class="form-check-label" for="delivery">Доставка курьером</label>
+          </div>
+          <div id="address-block" class="mb-2 ms-4">
+            <input type="text" name="delivery_address" class="form-control" placeholder="Адрес доставки">
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="delivery_type" id="pickup" value="pickup">
+            <label class="form-check-label" for="pickup">Самовывоз</label>
+          </div>
+          <div id="pickup-block" class="mt-2 ms-4 d-none">
+            <select name="pickup_point" class="form-select">
+              <option value="">Выберите пункт самовывоза</option>
+              {% for point in pickup_points %}
+              <option value="{{ point.pk }}">{{ point.name }} — {{ point.address }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Промокод</div>
+        <div class="card-body">
+          <div class="input-group">
+            <input type="text" name="promo_code" class="form-control" placeholder="Введите промокод (необязательно)">
+          </div>
+          <small class="text-muted">Активные промокоды: <a href="/promo/" target="_blank">смотреть</a></small>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Комментарий</div>
+        <div class="card-body">
+          <textarea name="comment" class="form-control" rows="2" placeholder="Комментарий к заказу (необязательно)"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-danger btn-lg w-100">Подтвердить заказ</button>
+    </form>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header">Ваш заказ</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          {% for item in cart_items %}
+          <tr>
+            <td>{{ item.pizza_name }} ({{ item.size_name }}) × {{ item.quantity }}</td>
+            <td class="text-end">{{ item.subtotal }} руб.</td>
+          </tr>
+          {% endfor %}
+          <tr class="table-warning fw-bold">
+            <td>Итого</td>
+            <td class="text-end text-danger">{{ total }} руб.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('input[name="delivery_type"]').forEach(function(r){
+  r.addEventListener('change', function(){
+    document.getElementById('address-block').classList.toggle('d-none', this.value !== 'delivery');
+    document.getElementById('pickup-block').classList.toggle('d-none', this.value !== 'pickup');
+  });
+});
+</script>
+{% endblock %}

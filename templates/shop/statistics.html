@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Статистика — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Статистика продаж</h1>
+<p class="text-muted">Графики построены средствами Python (matplotlib)</p>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-center border-primary">
+      <div class="card-body">
+        <h2 class="text-primary">{{ total_orders }}</h2>
+        <p class="card-text">Всего заказов</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center border-success">
+      <div class="card-body">
+        <h2 class="text-success">{{ total_revenue|floatformat:2 }} руб.</h2>
+        <p class="card-text">Общая выручка</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center border-warning">
+      <div class="card-body">
+        <h2 class="text-warning">{{ avg_order }} руб.</h2>
+        <p class="card-text">Средний чек</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">Выручка по месяцам (Python/matplotlib)</div>
+      <div class="card-body text-center">
+        {% if chart_revenue_b64 %}
+        <img src="data:image/png;base64,{{ chart_revenue_b64 }}" class="img-fluid" alt="Выручка по месяцам">
+        {% else %}
+        <p class="text-muted">Нет данных о доставленных заказах</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">Популярность пицц (Python/matplotlib)</div>
+      <div class="card-body text-center">
+        {% if chart_pizzas_b64 %}
+        <img src="data:image/png;base64,{{ chart_pizzas_b64 }}" class="img-fluid" alt="Популярность пицц">
+        {% else %}
+        <p class="text-muted">Нет данных о заказах</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Заказы по статусам (Python/matplotlib)</div>
+      <div class="card-body text-center">
+        {% if chart_status_b64 %}
+        <img src="data:image/png;base64,{{ chart_status_b64 }}" class="img-fluid" alt="Статусы заказов">
+        {% else %}
+        <p class="text-muted">Нет заказов</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Популярные пиццы (топ)</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Пицца</th><th>Заказов</th></tr></thead>
+          <tbody>
+            {% for row in popular_pizzas %}
+            <tr><td>{{ row.pizza__name }}</td><td>{{ row.cnt }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted">Нет данных</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Топ клиентов</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Клиент</th><th>Заказов</th></tr></thead>
+          <tbody>
+            {% for row in orders_per_client %}
+            <tr><td>{{ row.client__user__username }}</td><td>{{ row.cnt }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted">Нет данных</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Выручка по курьерам</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Курьер</th><th>Выручка</th></tr></thead>
+          <tbody>
+            {% for row in revenue_per_courier %}
+            <tr><td>{{ row.courier__profile__user__username }}</td><td>{{ row.total|floatformat:2 }} руб.</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted">Нет данных</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

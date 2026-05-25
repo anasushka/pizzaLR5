@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}О нас — PizzaHouse{% endblock %}
+{% block content %}
+<h1>О нас</h1>
+{% if company %}
+<div class="row">
+  <div class="col-md-8">
+    {% if company.logo %}
+    <img src="{{ company.logo.url }}" class="img-fluid mb-3" alt="{{ company.name }}" style="max-height:150px;">
+    {% endif %}
+    <h2>{{ company.name }}</h2>
+    <p class="lead">{{ company.description }}</p>
+    {% if company.founded_year %}<p><strong>Год основания:</strong> {{ company.founded_year }}</p>{% endif %}
+    {% if company.address %}<p><strong>Адрес:</strong> {{ company.address }}</p>{% endif %}
+    {% if company.phone %}<p><strong>Телефон:</strong> {{ company.phone }}</p>{% endif %}
+    {% if company.email %}<p><strong>Email:</strong> <a href="mailto:{{ company.email }}">{{ company.email }}</a></p>{% endif %}
+    {% if company.requisites %}
+    <div class="mt-3">
+      <h5>Реквизиты</h5>
+      <pre class="bg-light p-3 rounded">{{ company.requisites }}</pre>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-md-4">
+    <div class="card border-danger">
+      <div class="card-body text-center">
+        <h1 class="display-3 text-danger">🍕</h1>
+        <h5>PizzaHouse</h5>
+        <p class="text-muted">Свежая пицца каждый день</p>
+        <a href="/shop/" class="btn btn-danger">Смотреть меню</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info">Информация о компании скоро появится.</div>
+{% endif %}
+{% endblock %}

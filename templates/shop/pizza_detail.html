@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ pizza.name }} — PizzaHouse{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+    <li class="breadcrumb-item"><a href="/shop/">Меню</a></li>
+    <li class="breadcrumb-item active">{{ pizza.name }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-5">
+    {% if pizza.image %}
+    <img src="{{ pizza.image.url }}" class="img-fluid rounded" alt="{{ pizza.name }}">
+    {% else %}
+    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:350px;">
+      <span style="font-size:6rem;">🍕</span>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-md-7">
+    <h1>{{ pizza.name }}</h1>
+    <p class="text-muted">{{ pizza.category.name }} · Соус: {{ pizza.sauce.name }}</p>
+    <p>{{ pizza.description }}</p>
+
+    {% if pizza.ingredients %}
+    <p><strong>Состав:</strong> {{ pizza.ingredients }}</p>
+    {% endif %}
+    {% if pizza.weight_g %}<p><strong>Вес:</strong> {{ pizza.weight_g }} г</p>{% endif %}
+    {% if pizza.calories %}<p><strong>Калорийность:</strong> {{ pizza.calories }} ккал</p>{% endif %}
+
+    {% if prices %}
+    {% if user.is_authenticated %}
+    <form method="post" action="/shop/pizza/{{ pizza.pk }}/add-to-cart/">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label fw-bold">Выберите размер и количество:</label>
+        <div class="row g-2">
+          {% for pp in prices %}
+          <div class="col-auto">
+            <div class="form-check form-check-inline border rounded p-2">
+              <input class="form-check-input" type="radio" name="size_id"
+                     id="size{{ pp.size.pk }}" value="{{ pp.size.pk }}"
+                     {% if forloop.first %}checked{% endif %}>
+              <label class="form-check-label" for="size{{ pp.size.pk }}">
+                {{ pp.size.get_name_display }} ({{ pp.size.diameter_cm }} см)<br>
+                <strong class="text-danger">{{ pp.price }} руб.</strong>
+              </label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Количество:</label>
+        <input type="number" name="quantity" class="form-control" value="1" min="1" max="10" style="width:80px;">
+      </div>
+      <button type="submit" class="btn btn-danger btn-lg">🛒 Добавить в корзину</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning">
+      <a href="/users/login/">Войдите</a>, чтобы добавить в корзину.
+    </div>
+    <div>
+      {% for pp in prices %}
+      <span class="badge bg-secondary me-2">{{ pp.size.get_name_display }} — {{ pp.price }} руб.</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if user.is_superuser %}
+    <div class="mt-3">
+      <a href="/shop/pizza/{{ pizza.pk }}/edit/" class="btn btn-outline-secondary btn-sm">Редактировать</a>
+      <a href="/shop/pizza/{{ pizza.pk }}/delete/" class="btn btn-outline-danger btn-sm ms-2">Удалить</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<a href="/shop/" class="btn btn-outline-secondary mt-4">← Назад к меню</a>
+{% endblock %}

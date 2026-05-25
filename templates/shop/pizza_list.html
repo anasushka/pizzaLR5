@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Меню — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Наше меню</h1>
+
+<form method="get" class="mb-4">
+  <div class="row g-2">
+    <div class="col-md-3">
+      <input type="text" name="q" class="form-control" placeholder="Поиск по названию..." value="{{ q }}">
+    </div>
+    <div class="col-md-2">
+      <select name="category" class="form-select">
+        <option value="">Все категории</option>
+        {% for cat in categories %}
+        <option value="{{ cat.pk }}" {% if category_id == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="sauce" class="form-select">
+        <option value="">Любой соус</option>
+        {% for s in sauces %}
+        <option value="{{ s.pk }}" {% if sauce_id == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-1">
+      <input type="number" name="min_price" class="form-control" placeholder="Цена от" value="{{ min_price }}" min="0">
+    </div>
+    <div class="col-md-1">
+      <input type="number" name="max_price" class="form-control" placeholder="до" value="{{ max_price }}" min="0">
+    </div>
+    <div class="col-md-2">
+      <select name="sort" class="form-select">
+        <option value="name" {% if sort == "name" %}selected{% endif %}>По названию А-Я</option>
+        <option value="-name" {% if sort == "-name" %}selected{% endif %}>По названию Я-А</option>
+        <option value="price" {% if sort == "price" %}selected{% endif %}>Сначала дешевле</option>
+        <option value="-price" {% if sort == "-price" %}selected{% endif %}>Сначала дороже</option>
+      </select>
+    </div>
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-danger w-100">Найти</button>
+    </div>
+  </div>
+</form>
+
+{% if user.is_superuser %}
+<a href="/shop/pizza/create/" class="btn btn-success mb-3">+ Добавить пиццу</a>
+{% endif %}
+
+{% if page_obj.object_list %}
+<div class="row">
+  {% for pizza in page_obj %}
+  <div class="col-md-4 col-lg-3 mb-4">
+    <div class="card h-100">
+      {% if pizza.image %}
+      <img src="{{ pizza.image.url }}" class="card-img-top" alt="{{ pizza.name }}" style="height:180px;object-fit:cover;">
+      {% else %}
+      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:180px;">
+        <span style="font-size:3rem;">🍕</span>
+      </div>
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h6 class="card-title">{{ pizza.name }}</h6>
+        <small class="text-muted">{{ pizza.category.name }}</small>
+        <p class="card-text small mt-1 flex-grow-1">{{ pizza.description|truncatechars:80 }}</p>
+        <p class="text-danger fw-bold">от {{ pizza.get_min_price }} руб.</p>
+        <a href="/shop/pizza/{{ pizza.pk }}/" class="btn btn-outline-danger btn-sm">Выбрать</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&category={{ category_id }}&sort={{ sort }}">«</a>
+    </li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+      <a class="page-link" href="?page={{ num }}&q={{ q }}&category={{ category_id }}&sort={{ sort }}">{{ num }}</a>
+    </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&category={{ category_id }}&sort={{ sort }}">»</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% else %}
+<div class="alert alert-info">Пиццы не найдены. Попробуйте изменить параметры поиска.</div>
+{% endif %}
+{% endblock %}

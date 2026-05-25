@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Заказ #{{ order.pk }} — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Заказ #{{ order.pk }}</h1>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header">Информация о заказе</div>
+      <div class="card-body">
+        <p><strong>Клиент:</strong> {{ order.client.user.get_full_name|default:order.client.user.username }}</p>
+        <p><strong>Статус:</strong>
+          <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'new' %}primary{% else %}warning text-dark{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </p>
+        <p><strong>Тип доставки:</strong> {{ order.get_delivery_type_display }}</p>
+        {% if order.delivery_address %}<p><strong>Адрес:</strong> {{ order.delivery_address }}</p>{% endif %}
+        {% if order.pickup_point %}<p><strong>Пункт самовывоза:</strong> {{ order.pickup_point.name }} — {{ order.pickup_point.address }}</p>{% endif %}
+        {% if order.courier %}<p><strong>Курьер:</strong> {{ order.courier.profile.user.get_full_name|default:order.courier.profile.user.username }}</p>{% endif %}
+        {% if order.promo_code %}<p><strong>Промокод:</strong> {{ order.promo_code }} (скидка {{ order.discount_percent }}%)</p>{% endif %}
+        {% if order.comment %}<p><strong>Комментарий:</strong> {{ order.comment }}</p>{% endif %}
+        <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        <p class="fs-5"><strong>Итого:</strong> <span class="text-danger">{{ order.total_price }} руб.</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header">Состав заказа</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead><tr><th>Пицца</th><th>Размер</th><th>Кол-во</th><th>Цена</th></tr></thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr>
+              <td>{{ item.pizza.name }}</td>
+              <td>{{ item.size.get_name_display }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.get_subtotal }} руб.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if user.is_superuser or user.profile.role == 'employee' %}
+    <div class="card">
+      <div class="card-header">Изменить статус</div>
+      <div class="card-body">
+        <form method="post" action="/shop/orders/{{ order.pk }}/status/">
+          {% csrf_token %}
+          <div class="input-group">
+            <select name="status" class="form-select">
+              <option value="new" {% if order.status == 'new' %}selected{% endif %}>Новый</option>
+              <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>Готовится</option>
+              <option value="delivering" {% if order.status == 'delivering' %}selected{% endif %}>Доставляется</option>
+              <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Доставлен</option>
+              <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Отменён</option>
+            </select>
+            <button type="submit" class="btn btn-danger">Обновить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<a href="/shop/orders/" class="btn btn-outline-secondary mt-3">← К списку заказов</a>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Личный кабинет</h1>
+
+<div class="row mb-3">
+  <div class="col">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h5>{{ user.get_full_name|default:user.username }}</h5>
+        <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+        {% if profile %}
+        <p class="mb-1"><strong>Телефон:</strong> {{ profile.phone|default:"не указан" }}</p>
+        <p class="mb-1"><strong>Роль:</strong>
+          <span class="badge bg-{% if user.is_superuser %}danger{% elif profile.role == 'employee' %}warning text-dark{% else %}primary{% endif %}">
+            {% if user.is_superuser %}Администратор{% elif profile.role == 'employee' %}Сотрудник{% else %}Покупатель{% endif %}
+          </span>
+        </p>
+        {% endif %}
+        <a href="/users/profile/" class="btn btn-sm btn-outline-danger mt-2">Редактировать профиль</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4>
+  {% if user.is_superuser %}Все заказы (последние 20)
+  {% elif profile and profile.role == 'employee' %}Активные заказы
+  {% else %}Мои заказы
+  {% endif %}
+</h4>
+
+{% if orders %}
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        {% if user.is_superuser or profile.role == 'employee' %}<th>Клиент</th>{% endif %}
+        <th>Статус</th>
+        <th>Сумма</th>
+        <th>Дата</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.pk }}</td>
+        {% if user.is_superuser or profile.role == 'employee' %}
+        <td>{{ order.client.user.username }}</td>
+        {% endif %}
+        <td>
+          <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'new' %}primary{% else %}warning text-dark{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </td>
+        <td>{{ order.total_price }} руб.</td>
+        <td>{{ order.created_at|date:"d.m.Y" }}</td>
+        <td><a href="/shop/orders/{{ order.pk }}/" class="btn btn-sm btn-outline-secondary">Детали</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<a href="/shop/orders/" class="btn btn-outline-danger">Все заказы</a>
+{% else %}
+<div class="alert alert-info">Заказов пока нет.</div>
+<a href="/shop/" class="btn btn-danger">Перейти в меню</a>
+{% endif %}
+{% endblock %}

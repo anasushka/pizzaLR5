@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — PizzaHouse{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mt-4">
+      <div class="card-header bg-danger text-white text-center">
+        <h4 class="mb-0">Регистрация</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+          </div>
+          {% endfor %}
+          <p class="text-muted small">Регистрируясь, вы соглашаетесь с <a href="/privacy/">политикой конфиденциальности</a>.</p>
+          <p class="text-muted small">Возраст от 18 лет. Телефон в формате +375 (XX) XXX-XX-XX.</p>
+          <button type="submit" class="btn btn-danger w-100">Зарегистрироваться</button>
+        </form>
+        <hr>
+        <p class="text-center mb-0">Уже есть аккаунт? <a href="/users/login/">Войти</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Главная — PizzaHouse{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h1>Добро пожаловать в PizzaHouse!</h1>
+    <p class="lead">Вкусная пицца с доставкой по всему городу. Готовим из свежих ингредиентов каждый день.</p>
+    <a href="/shop/" class="btn btn-danger btn-lg">Смотреть меню</a>
+  </div>
+  {% if latest %}
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Последние новости</h5>
+        {% if latest.image %}<img src="{{ latest.image.url }}" class="img-fluid mb-2" alt="">{% endif %}
+        <h6>{{ latest.title }}</h6>
+        <p class="card-text">{{ latest.summary }}</p>
+        <a href="/news/{{ latest.pk }}/" class="btn btn-outline-danger btn-sm">Читать далее</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>Дата и время</h5>
+        <p>Текущая дата (UTC, сервер): <strong>{{ now_utc|date:"d/m/Y H:i:s" }}</strong></p>
+        <p>Ваша временная зона: <strong id="user-tz">—</strong></p>
+        <p>Ваша дата и время: <strong id="local-time">—</strong></p>
+        <hr>
+        <h6>Календарь на текущий месяц (Python/calendar):</h6>
+        <pre style="font-family:monospace;font-size:0.82rem;white-space:pre;">{{ py_calendar }}</pre>
+        <div id="calendar-text" class="mt-1" style="font-family:monospace;white-space:pre;font-size:0.8rem;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>Погода в Минске</h5>
+        <div id="weather-widget">Загрузка...</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function pad(n){return n<10?'0'+n:n}
+function formatDate(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()}
+function formatDateTime(d){return formatDate(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+
+function updateClock(){
+  const now = new Date();
+  document.getElementById('local-time').textContent = formatDateTime(now);
+  document.getElementById('user-tz').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+fetch('/api/weather/?city=Minsk').then(r=>r.json()).then(data=>{
+  if(data.error){document.getElementById('weather-widget').textContent='Недоступно';return;}
+  document.getElementById('weather-widget').innerHTML=
+    '<b>'+data.description+'</b><br>Температура: '+data.temp_c+'°C (ощущается '+data.feels_like+'°C)<br>Влажность: '+data.humidity+'%';
+}).catch(()=>{document.getElementById('weather-widget').textContent='Сервис недоступен';});
+</script>
+{% endblock %}

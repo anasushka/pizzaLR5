@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Заказы — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Заказы</h1>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <input type="text" name="q" class="form-control" placeholder="Поиск по номеру или клиенту..." value="{{ q }}">
+  </div>
+  <div class="col-md-3">
+    <select name="sort" class="form-select">
+      <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>Новые сначала</option>
+      <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>Старые сначала</option>
+      <option value="-total_price" {% if sort == "-total_price" %}selected{% endif %}>Дороже сначала</option>
+      <option value="total_price" {% if sort == "total_price" %}selected{% endif %}>Дешевле сначала</option>
+      <option value="status" {% if sort == "status" %}selected{% endif %}>По статусу</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-outline-danger">Применить</button>
+  </div>
+</form>
+
+{% if orders %}
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        {% if user.is_superuser or user.profile.role == 'employee' %}<th>Клиент</th>{% endif %}
+        <th>Статус</th>
+        <th>Тип доставки</th>
+        <th>Сумма</th>
+        <th>Дата</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.pk }}</td>
+        {% if user.is_superuser or user.profile.role == 'employee' %}
+        <td>{{ order.client.user.get_full_name|default:order.client.user.username }}</td>
+        {% endif %}
+        <td>
+          <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'new' %}primary{% else %}warning text-dark{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </td>
+        <td>{{ order.get_delivery_type_display }}</td>
+        <td>{{ order.total_price }} руб.</td>
+        <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+        <td><a href="/shop/orders/{{ order.pk }}/" class="btn btn-sm btn-outline-secondary">Детали</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">Заказов нет.</div>
+{% endif %}
+{% endblock %}

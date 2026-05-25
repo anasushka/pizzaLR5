@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Пункты самовывоза — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Пункты самовывоза</h1>
+
+{% if points %}
+<div class="row">
+  {% for point in points %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title text-danger">{{ point.name }}</h5>
+        <p><strong>📍</strong> {{ point.address }}</p>
+        {% if point.phone %}<p><strong>📞</strong> {{ point.phone }}</p>{% endif %}
+        {% if point.working_hours %}<p><strong>🕐</strong> {{ point.working_hours }}</p>{% endif %}
+        {% if point.description %}<p class="text-muted">{{ point.description }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">Нет активных пунктов самовывоза.</div>
+{% endif %}
+{% endblock %}

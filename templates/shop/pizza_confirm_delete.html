@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Удалить пиццу — PizzaHouse{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">Подтверждение удаления</div>
+      <div class="card-body text-center">
+        {% if pizza.image %}
+        <img src="{{ pizza.image.url }}" class="img-fluid rounded mb-3" style="max-height:150px;" alt="{{ pizza.name }}">
+        {% endif %}
+        <h4>{{ pizza.name }}</h4>
+        <p class="text-muted">{{ pizza.category.name }}</p>
+        <p class="text-danger">Вы уверены, что хотите удалить эту пиццу? Это действие необратимо.</p>
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </form>
+        <a href="/shop/pizza/{{ pizza.pk }}/" class="btn btn-outline-secondary ms-2">Отмена</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

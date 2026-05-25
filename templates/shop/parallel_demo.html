@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Параллельные задачи — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Демонстрация параллельных вычислений</h1>
+<p class="lead">Примеры использования Threading, Multiprocessing и Asyncio в Python</p>
+
+{% if not ran %}
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5>🧵 Threading</h5>
+        <p>Параллельная регистрация клиентов с использованием потоков и блокировки (Lock). Обходит GIL для I/O-bound задач.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5>⚙️ Multiprocessing</h5>
+        <p>Обработка пикселей матрицы в нескольких процессах. Полностью обходит GIL для CPU-bound задач.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5>⚡ Asyncio</h5>
+        <p>Асинхронная рассылка заказов в аптеки. Эффективно для большого количества I/O-bound операций.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="/shop/parallel/run/">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger btn-lg">▶ Запустить демонстрацию</button>
+</form>
+{% endif %}
+
+{% if ran and results %}
+<div class="alert alert-success">Демонстрация завершена!</div>
+{% for section in results %}
+<div class="card mb-3">
+  <div class="card-header fw-bold">{{ section.title }}</div>
+  <div class="card-body">
+    <pre class="bg-light p-3 rounded mb-0" style="font-size:0.85rem;">{{ section.output }}</pre>
+    <p class="text-muted mt-2 mb-0">Время выполнения: <strong>{{ section.elapsed }}с</strong></p>
+  </div>
+</div>
+{% endfor %}
+<a href="/shop/parallel/" class="btn btn-outline-secondary mt-2">← Запустить снова</a>
+{% endif %}
+{% endblock %}

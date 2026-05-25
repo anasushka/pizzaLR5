@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Промокоды — PizzaHouse{% endblock %}
+{% block content %}
+<h1>Промокоды и купоны</h1>
+
+{% if active_promos %}
+<h3 class="text-success mt-3">Активные промокоды</h3>
+<div class="row">
+  {% for promo in active_promos %}
+  <div class="col-md-4 mb-3">
+    <div class="card border-success">
+      <div class="card-body text-center">
+        <h2 class="text-success fw-bold font-monospace">{{ promo.code }}</h2>
+        <span class="badge bg-success fs-5">-{{ promo.discount_percent }}%</span>
+        <p class="card-text mt-2">{{ promo.description }}</p>
+        <small class="text-muted">
+          Действует: {{ promo.valid_from|date:"d.m.Y" }} — {{ promo.valid_to|date:"d.m.Y" }}
+        </small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info mt-3">Активных промокодов нет. Следите за новостями!</div>
+{% endif %}
+
+{% if archive_promos %}
+<h3 class="text-muted mt-4">Архив</h3>
+<div class="row">
+  {% for promo in archive_promos %}
+  <div class="col-md-4 mb-3">
+    <div class="card text-muted">
+      <div class="card-body text-center">
+        <h4 class="font-monospace text-decoration-line-through">{{ promo.code }}</h4>
+        <span class="badge bg-secondary">-{{ promo.discount_percent }}%</span>
+        <p class="card-text mt-2">{{ promo.description }}</p>
+        <small>{{ promo.valid_from|date:"d.m.Y" }} — {{ promo.valid_to|date:"d.m.Y" }}</small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
