@@ -8,7 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-pizzeria-dev-key-2024')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0').split(',')
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000').split(',')
+CSRF_TRUSTED_ORIGINS = (
+    [f'https://{h}' for h in ALLOWED_HOSTS if '.' in h and not h.startswith('127')]
+    + ['http://localhost:8000', 'http://127.0.0.1:8000']
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
