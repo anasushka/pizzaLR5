@@ -453,13 +453,3 @@ def pizza_delete_view(request, pk):
         return redirect('pizza_list')
     return render(request, 'shop/pizza_confirm_delete.html', {'pizza': pizza})
 
-
-def parallel_demo_view(request):
-    return render(request, 'shop/parallel_demo.html')
-
-
-def run_parallel_demo(request):
-    from .parallel_tasks import run_all_demos
-    results = run_all_demos()
-    return render(request, 'shop/parallel_demo.html', {'results': results, 'ran': True})
-

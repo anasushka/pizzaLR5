@@ -130,9 +130,6 @@ class TestPublicPages:
         r = client.get('/shop/pickup-points/')
         assert r.status_code == 200
 
-    def test_parallel_demo(self, client, db):
-        r = client.get('/shop/parallel/')
-        assert r.status_code == 200
 
 
 class TestAuthPages:

@@ -16,6 +16,4 @@ urlpatterns = [
     re_path(r'^orders/(?P<pk>\d+)/status/$', views.update_order_status, name='update_order_status'),
     path('statistics/', views.statistics_view, name='statistics'),
     path('pickup-points/', views.pickup_points_view, name='pickup_points'),
-    path('parallel/', views.parallel_demo_view, name='parallel_demo'),
-    path('parallel/run/', views.run_parallel_demo, name='run_parallel_demo'),
 ]

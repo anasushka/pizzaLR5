@@ -1,17 +1,16 @@
 import os
 import dj_database_url
 from pathlib import Path
-from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-pizzeria-dev-key-2024')
-DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0').split(',')
-CSRF_TRUSTED_ORIGINS = (
-    [f'https://{h}' for h in ALLOWED_HOSTS if '.' in h and not h.startswith('127')]
-    + ['http://localhost:8000', 'http://127.0.0.1:8000']
-)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-pizzeria-dev-key-2024')
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost:8000,http://127.0.0.1:8000'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -29,6 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,10 +57,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pizzeria.wsgi.application'
 
-DATABASE_URL = config('DATABASE_URL', default='')
-
+DATABASE_URL = os.environ.get('DATABASE_URL', '')
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
 else:
     DATABASES = {
         'default': {
@@ -76,14 +75,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LANGUAGE_CODE = config('LANGUAGE_CODE', default='ru-RU')
-TIME_ZONE = config('TIME_ZONE', default='UTC')
+LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', 'ru-RU')
+TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -94,7 +97,7 @@ LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-LOG_LEVEL = config('LOG_LEVEL', default='INFO')
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
@@ -169,5 +172,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY', default='')
-IPINFO_TOKEN = config('IPINFO_TOKEN', default='')
+OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
+IPINFO_TOKEN = os.environ.get('IPINFO_TOKEN', '')
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
